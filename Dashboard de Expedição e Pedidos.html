@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-BR"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Dashboard de Expedição e Pedidos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+:root{--bg:#f3f5f8;--card:#fff;--tx:#1e2a3a;--mut:#6b778a;--bd:#dde3ea;--pri:#1f5fbf;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#11161d;--card:#1a212b;--tx:#e6ebf2;--mut:#93a0b3;--bd:#2b3543;--pri:#5b9bff}}
+:root[data-theme="dark"]{--bg:#11161d;--card:#1a212b;--tx:#e6ebf2;--mut:#93a0b3;--bd:#2b3543;--pri:#5b9bff}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,Segoe UI,Arial,sans-serif}
+main{max-width:1200px;margin:auto;padding:16px}
+h1{margin:0;font-size:22px}.sub{color:var(--mut);margin:2px 0 14px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:14px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.kpi b{display:block;font-size:26px;color:var(--pri)}.kpi span{color:var(--mut);font-size:12px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+select,input{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:6px;padding:7px;font:inherit}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:10px;margin-bottom:12px}
+.ch{position:relative;height:260px}
+ul{margin:0;padding-left:18px}li{margin:4px 0}
+.tw{overflow-x:auto;margin-top:8px}
+table{border-collapse:collapse;width:100%;min-width:900px}
+th,td{padding:6px 8px;border-bottom:1px solid var(--bd);text-align:left;white-space:nowrap}
+th{cursor:pointer;color:var(--mut);font-size:12px;position:sticky;top:0;background:var(--card)}
+.b{padding:2px 8px;border-radius:10px;font-size:12px;color:#fff}
+</style></head><body><main>
+<h1>Dashboard de Expedição e Pedidos</h1>
+<p class="sub">Período: datas de 13/08 a 28/02 (ano não informado na imagem) · <span id="cnt"></span></p>
+<div class="kpis" id="kpis"></div>
+<div class="filters">
+<select id="f1"></select><select id="f2"></select><select id="f3"></select>
+</div>
+<div class="grid">
+<div class="card"><div class="ch"><canvas id="c1"></canvas></div></div>
+<div class="card"><div class="ch"><canvas id="c2"></canvas></div></div>
+<div class="card"><div class="ch"><canvas id="c3"></canvas></div></div>
+<div class="card"><div class="ch"><canvas id="c4"></canvas></div></div>
+</div>
+<div class="card" style="margin-bottom:12px"><b>Insights</b><ul id="ins"></ul></div>
+<div class="card"><input id="q" placeholder="Buscar em toda a tabela…" style="width:100%;box-sizing:border-box">
+<div class="tw"><table><thead id="th"></thead><tbody id="tb"></tbody></table></div></div>
+</main>
+<script>
+const H=["Status","Nº","Data C","Data D","Data E","Ref.","Item","Pedido","Cliente","Liberação","Conf.","Qtd","Obs."];
+const R=[
+["COLETADO","5384","18/08","","13/08","OP 73113","848","P4643","BBULL BRASIL SERVICOS E COMERCIO DE EQUIPAMENTOS INDUSTRIAIS LTDA","LIBERADO","1","01",""],
+["BLOQUEADO","","","10/08","26/08","18990","850","P4657","BBULL BRASIL SERVICOS E COMERCIO DE EQUIPAMENTOS INDUSTRIAIS LTDA","CANCELADO","-","17",""],
+["COLETADO","5386","19/08","","26/08","18899","853","P4672","AMBEV S/A","LIBERADO","OK","01",""],
+["NF OK","5421","","","01/09","18756","843","P4620","CAF - CRYSTAL AGUAS DO NORDESTE LTDA","LIBERADO","OK","01",""],
+["NF OK","5422","","","01/09","18757","844","P4620","CAF - CRYSTAL AGUAS DO NORDESTE LTDA","LIBERADO","OK","01",""],
+["NF OK","5431","","","03/09","19163","867","P4642","COMPAR CIA PARAENSE DE REFRIGERANTE","LIBERADO","","01","REXNORD 15/10 21/10"],
+["COLETADO","5394","27/08","","04/09","-","813","P4488","FALTANTE","LIBERADO","OK","01",""],
+["COLETADO","5408","04/09","","04/09","-","876","P4713","AR INDUSTRIAL","LIBERADO","OK","01","DRENO"],
+["COLETADO","5405","15/09","","09/09","19156","874","P4708","MOVEX BRASIL LTDA","LIBERADO","OK","01","AG. COLETA"],
+["COLETADO","5420","23/09","","14/09","19241","879","P4716","BUNGE ALIMENTOS S/A","LIBERADO","OK","01","REXNORD 15/10 21/10"],
+["NF OK","5434","30/09","","28/09","","890","P4720","AMBEV S/A","LIBERADO","","",""],
+["LIBERADO","","","10/09","29/09","19331","880","P4622","COMPAR COMPANHIA PARAENSE DE REFRIGERANTE","SEPARAÇÃO","","",""],
+["NF OK","5433","30/09","30/07","30/09","18839","847","P4627","AMBEV S/A","LIBERADO","OK","01","TRANSPAK?"],
+["LIBERADO","","","22/09","08/10","19346","886","P4669","AMBEV S/A","SEPARAR","2","",""],
+["COLETADO","5432","29/09","24/9","10/10","","888","P4736","BUNGE ALIMENTOS S/A","LIBERADO","OK","01",""],
+["COLETADO","5382","13/08","","12/10","18985","852","P4644","AMBEV S/A","LIBERADO","OK","01",""],
+["LIBERADO","","","10/8","12/10","19311","851","P4659","AMBEV S/A","SEPARAR","1","","CRITICO - FATURAR"],
+["LIBERADO","","","24/9","14/10","19343","889","P4325","AMBEV S/A","SEPARAR","4","",""],
+["LIBERADO","","","16/09","30/10","19339","882","P4690","NORSA REFRIGERANTES LTDA","LIBERADO","3","",""],
+["COLETADO","","11/09","","05/11","19162","873","P4540","AMBEV S/A","LIBERADO","OK","01",""],
+["COLETADO","","18/09","","17/11","19240","877","P4691","NORSA REFRIGERANTES LTDA","LIBERADO","OK","01","22/09 RODA"],
+["COLETADO","5396","01/09","25/8","23/11","19100","866","P4676","CAF - CRYSTAL AGUAS DO NORDESTE LTDA","LIBERADO","OK","01",""],
+["LIBERADO","","","25/8","23/11","73598","866","P4676","CAF - CRYSTAL AGUAS DO NORDESTE LTDA","SEPARAR","","","AG. PC 18253 - MONTAR"],
+["COLETADO","5424","30/09","","28/02","19101","869","P4670","AMBEV S/A","LIBERADO","","01","AG. COLETA NA MOVEX"]];
+const cor={COLETADO:"#1f5fbf","NF OK":"#7fb3e6",LIBERADO:"#2e8b57",BLOQUEADO:"#e08a1e"};
+const nf=n=>n.toLocaleString("pt-BR"),pc=n=>n.toLocaleString("pt-BR",{maximumFractionDigits:1})+"%";
+const cl=r=>r[8].replace("COMPAR COMPANHIA","COMPAR CIA");
+const opts=(id,lbl,i,f)=>{const s=document.getElementById(id);s.innerHTML=`<option value="">${lbl}: todos</option>`+[...new Set(R.map(f||(r=>r[i])))].map(v=>`<option>${v}</option>`).join("")};
+opts("f1","Status",0);opts("f2","Cliente",8,cl);opts("f3","Liberação",9);
+const ch={};let sk=-1,sd=1;
+function cnt(a,f){const m={};a.forEach(r=>{const k=f(r);m[k]=(m[k]||0)+1});return Object.entries(m).sort((x,y)=>y[1]-x[1])}
+function draw(id,type,title,ents,xl,yl,colors){
+ const d={labels:ents.map(e=>e[0].length>24?e[0].slice(0,22)+"…":e[0]),datasets:[{label:"Itens",data:ents.map(e=>e[1]),backgroundColor:colors||"#1f5fbf"}]};
+ if(ch[id])ch[id].destroy();
+ const dn=type==="doughnut";
+ ch[id]=new Chart(document.getElementById(id),{type,data:d,options:{maintainAspectRatio:false,indexAxis:type==="bar"&&xl==="Qtd. de itens"?"y":"x",
+  plugins:{title:{display:true,text:title},legend:{display:dn||true,position:"bottom",labels:{boxWidth:12}}},
+  scales:dn?{}:{x:{title:{display:true,text:xl},ticks:{precision:0}},y:{title:{display:true,text:yl},beginAtZero:true,ticks:{precision:0}}}}});
+}
+function render(){
+ const v=[f1.value,f2.value,f3.value],q=document.getElementById("q").value.toLowerCase();
+ let a=R.filter(r=>(!v[0]||r[0]===v[0])&&(!v[1]||cl(r)===v[1])&&(!v[2]||r[9]===v[2]));
+ const total=a.length,col=a.filter(r=>r[0]==="COLETADO").length,sep=a.filter(r=>r[9].startsWith("SEPAR")).length,
+ cli=new Set(a.map(cl)).size,pb=a.filter(r=>r[0]==="BLOQUEADO"||r[9]==="CANCELADO").length;
+ cnt2.textContent=total+" de "+R.length+" itens";
+ kpis.innerHTML=[["Itens",nf(total)],["Coletados",pc(total?col/total*100:0)],["A separar",nf(sep)],["Clientes",nf(cli)],["Bloqueado/Cancelado",nf(pb)]].map(k=>`<div class="card kpi"><b>${k[1]}</b><span>${k[0]}</span></div>`).join("");
+ draw("c1","bar","Itens por cliente",cnt(a,cl),"Qtd. de itens","Cliente");
+ const st=cnt(a,r=>r[0]);draw("c2","doughnut","Composição por status logístico",st,"","",st.map(e=>cor[e[0]]));
+ const lb=cnt(a,r=>r[9]);draw("c3","bar","Itens por status de liberação",lb,"Status de liberação","Qtd. de itens",["#2e8b57","#b0289c","#e0b81e","#c0281e"]);
+ const mm=cnt(a,r=>r[4].slice(3)).sort((x,y)=>((+x[0]<8?+x[0]+12:+x[0])-(+y[0]<8?+y[0]+12:+y[0])));
+ draw("c4","bar","Itens por mês da Data E (prevista)",mm.map(e=>["Mês "+e[0],e[1]]),"Mês","Qtd. de itens");
+ const crit=a.filter(r=>r[12].includes("CRITICO")).length;
+ ins.innerHTML=`<li>${nf(col)} de ${nf(total)} itens (${pc(total?col/total*100:0)}) já foram coletados.</li><li>${nf(sep)} itens aguardam separação${crit?`; ${crit} marcado como CRÍTICO (faturar)`:""}.</li><li>${st.length?"Status mais frequente: "+st[0][0]+" ("+st[0][1]+")":"Sem dados"}; cliente líder: ${cnt(a,cl)[0]?cnt(a,cl)[0][0]:"-"}.</li><li>Há registros sem NF/número e sem Conf. — ver tabela.</li>`;
+ let t=a.filter(r=>!q||r.join(" ").toLowerCase().includes(q));
+ if(sk>=0)t=[...t].sort((x,y)=>x[sk].localeCompare(y[sk],"pt-BR",{numeric:true})*sd);
+ th.innerHTML="<tr>"+H.map((h,i)=>`<th onclick="sk==${'${i}'}">${h}${sk===i?(sd>0?" ▲":" ▼"):""}</th>`).join("")+"</tr>";
+ [...th.querySelectorAll("th")].forEach((e,i)=>e.onclick=()=>{sd=sk===i?-sd:1;sk=i;render()});
+ tb.innerHTML=t.map(r=>"<tr>"+r.map((c,i)=>i===0?`<td><span class="b" style="background:${cor[c]}">${c}</span></td>`:`<td>${c||"–"}</td>`).join("")+"</tr>").join("");
+}
+const cnt2=document.getElementById("cnt");
+["f1","f2","f3","q"].forEach(i=>document.getElementById(i).oninput=render);
+render();
+</script></body></html>
