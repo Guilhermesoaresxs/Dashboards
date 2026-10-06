@@ -26,6 +26,9 @@ Este projeto consiste em um dashboard interativo focado na gestão, acompanhamen
 
 ---
 
+<img width="1204" height="736" alt="image" src="https://github.com/user-attachments/assets/17335cf9-37f9-4853-9df8-0fe56906a780" />
+
+
 ## 🛠️ Tecnologias Utilizadas
 
 - **HTML5 & CSS3**: Interface responsiva e suporte nativo a Dark Mode via CSS variables[cite: 1].
