@@ -3,6 +3,7 @@
 Este projeto consiste em um dashboard interativo focado na gestão, acompanhamento logístico e controle de status de expedição de pedidos. A solução unifica métricas de liberação, separação, faturamento (NF) e coleta de produtos em uma interface limpa, responsiva e dinâmica[cite: 1].
 
 ---
+<img width="1362" height="740" alt="image" src="https://github.com/user-attachments/assets/3d15ea5b-f4d8-4eb8-9aed-4ee514e5956e" />
 
 
 
