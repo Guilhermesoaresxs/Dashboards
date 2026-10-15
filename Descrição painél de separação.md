@@ -1,4 +1,4 @@
-🚀 A transparência e o monitoramento em tempo real são os verdadeiros motores da eficiência operacional na logística e manufatura. Apresento o Painel de Separação desenvolvido para a operação P4705 na AMBEV Jacareí (Transportador de Caixa L503/L504).
+A transparência e o monitoramento em tempo real são os verdadeiros motores da eficiência operacional na logística e manufatura. Apresento o Painel de Separação desenvolvido para a operação P4705 na AMBEV Jacareí.
 
 Esta ferramenta de **Gestão à Vista** foi projetada para dar controle total à equipe de operação, transformando dados brutos em ações rápidas e precisas.
 
@@ -47,8 +47,3 @@ Este repositório contém a interface de um painel de monitoramento (dashboard) 
 
 * **Suporte a Temas:** Alternância nativa entre `Claro / Escuro` para melhor visualização em monitores industriais ou ambientes com variação de luminosidade.
 
-
-
-### Fonte de Dados
-
-A arquitetura de dados consome informações diretamente das planilhas operacionais do projeto, abrangendo os fluxos de `MODULOS-CAIXA`, `CONJUNTOS mecânica/elétrica`, `RGO` e `COCKPIT`.
