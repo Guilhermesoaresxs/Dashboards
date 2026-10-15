@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Painel de Separação · P4705</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@500;700;900&display=swap">
+<style>
+:root{--bg:#eef1f5;--card:#fff;--tx:#0f1722;--mu:#5b6676;--ln:#d5dbe4;--g:#0a9d4a;--y:#d98e00;--r:#d62828;--b:#2563eb;--n:#8a94a6;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0b1118;--card:#151d28;--tx:#f2f5f9;--mu:#98a3b3;--ln:#263241;--g:#2ee27a;--y:#ffc233;--r:#ff5252;--b:#5b9bff;--n:#6b778a;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0b1118;--card:#151d28;--tx:#f2f5f9;--mu:#98a3b3;--ln:#263241;--g:#2ee27a;--y:#ffc233;--r:#ff5252;--b:#5b9bff;--n:#6b778a;color-scheme:dark}
+*{box-sizing:border-box;margin:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--tx);font-family:Inter,system-ui,Segoe UI,Roboto,sans-serif;font-size:clamp(13px,.95vw,20px);display:flex;flex-direction:column;gap:.8em;padding:.9em;min-height:100%}
+.card{background:var(--card);border:1px solid var(--ln);border-radius:.8em;padding:.9em 1.1em}
+.lb{color:var(--mu);font-weight:700;text-transform:uppercase;letter-spacing:.06em;font-size:.8em}
+header{display:flex;justify-content:space-between;align-items:center;gap:1em;flex-wrap:wrap}
+.ttl{font-weight:900;font-size:1.7em}.ttl small{display:block;font-size:.5em;color:var(--mu);font-weight:500}
+.hd{display:flex;gap:.8em;align-items:center;flex-wrap:wrap}
+.clock{font-weight:900;font-size:2.6em;font-variant-numeric:tabular-nums;line-height:1}
+.pill{border:1px solid var(--ln);background:var(--card);border-radius:2em;padding:.4em .9em;font-weight:700;display:flex;gap:.5em;align-items:center}
+.dot{width:.7em;height:.7em;border-radius:50%;background:var(--g)}.sync .dot{background:var(--y);animation:p 1s infinite}
+@keyframes p{50%{opacity:.25}}
+button{font:inherit;font-weight:700;color:var(--tx);background:var(--card);border:1px solid var(--ln);border-radius:2em;padding:.4em .9em;cursor:pointer}
+.kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:.8em}
+.v{font-weight:900;font-size:3.4em;line-height:1.1;font-variant-numeric:tabular-nums}.v small{font-size:.5em;color:var(--mu)}
+.sub{color:var(--mu);font-weight:500}
+.bar{height:.9em;border-radius:1em;background:var(--ln);overflow:hidden;display:flex}
+.bar i{display:block;height:100%}
+.main{display:grid;grid-template-columns:minmax(0,.9fr) minmax(0,1.7fr) minmax(0,1fr);gap:.8em;flex:1;min-height:0}
+.main>.card{display:flex;flex-direction:column;min-height:0}
+.donut{position:relative;width:100%;max-width:26em;margin:.6em auto}
+.donut svg{width:100%;display:block;transform:rotate(-90deg)}
+.ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ctr b{font-size:4.6em;font-weight:900;line-height:1}.ctr span{color:var(--mu);font-weight:700}
+.lg{display:grid;grid-template-columns:1fr 1fr;gap:.4em .8em;font-weight:700}
+.lg span:before{content:"";display:inline-block;width:.8em;height:.8em;border-radius:.2em;background:var(--c);margin-right:.4em}
+table{width:100%;border-collapse:collapse;margin-top:.5em}
+th{text-align:left;color:var(--mu);font-size:.8em;text-transform:uppercase;letter-spacing:.05em;padding:.4em .5em;border-bottom:2px solid var(--ln)}
+td{padding:.7em .5em;border-bottom:1px solid var(--ln);font-weight:700;font-variant-numeric:tabular-nums}
+.tw{overflow:auto;flex:1}
+.pb{min-width:7em;display:flex;align-items:center;gap:.5em}.pb .bar{flex:1}
+.st{padding:.25em .7em;border-radius:2em;font-size:.85em;color:#fff;white-space:nowrap}
+.al{overflow:auto;flex:1;display:flex;flex-direction:column;gap:.5em;margin-top:.5em}
+.a{border-left:.4em solid var(--c);background:color-mix(in srgb,var(--c) 12%,transparent);padding:.5em .7em;border-radius:.3em}
+.a b{display:block}.a span{color:var(--mu);font-weight:500;font-size:.9em}
+.foot{color:var(--mu);font-size:.75em}
+@media (max-width:1000px){.kpis,.main{grid-template-columns:1fr}.v{font-size:2.6em}.main{flex:none}}
+</style>
+</head>
+<body>
+<header>
+ <div class="ttl">Separação · Gestão à Vista<small>P4705 · AMBEV Jacareí · Transportador de Caixa L503/L504</small></div>
+ <div class="hd">
+  <div class="pill" id="turno"></div>
+  <div class="pill" id="sync"><i class="dot"></i><span id="syt"></span></div>
+  <button id="th">Claro / Escuro</button>
+  <div class="clock" id="clk">--:--:--</div>
+ </div>
+</header>
+<section class="kpis">
+ <div class="card"><div class="lb">Pedidos do turno (OPs)</div><div class="v" id="k1"></div><div class="sub" id="k1s"></div></div>
+ <div class="card"><div class="lb">Itens solicitados vs. separados</div><div class="v" id="k2"></div><div class="bar" id="k2b"></div></div>
+ <div class="card"><div class="lb">Produtividade (itens/hora)</div><div class="v" id="k3"></div><div class="sub" id="k3s"></div></div>
+</section>
+<section class="main">
+ <div class="card"><div class="lb">Progresso geral</div>
+  <div class="donut"><svg viewBox="0 0 120 120" id="dn"></svg><div class="ctr"><b id="pc"></b><span>CONCLUÍDO</span></div></div>
+  <div class="lg" id="lg"></div></div>
+ <div class="card"><div class="lb">Zonas / filas de separação</div>
+  <div class="tw"><table><thead><tr><th>Zona / Rua</th><th>Operador</th><th>Solic.</th><th>Separ.</th><th>Progresso</th><th>Status</th></tr></thead><tbody id="tb"></tbody></table></div></div>
+ <div class="card"><div class="lb">Alertas e exceções · <span id="na"></span></div><div class="al" id="al"></div></div>
+</section>
+<div class="foot">Fonte: planilhas do P4705 (MODULOS-CAIXA, CONJUNTOS mecânica/elétrica, RGO, COCKPIT). Regras: "SEPARAR" = Pendente · "SEPARAÇÃO" sem pallet = Em Separação · "SEPARAÇÃO" com pallet ou "LIBERADA" = Concluído · RGO/Montagem "BLOQUEADO" = Divergência. Quantidade = QtdPlanejada da OP (1 quando não informada). Produtividade = separados ÷ horas decorridas do turno (estimativa).</div>
+<script>
+const DATA={"z":["Módulos · Rua A","Módulos · Rua B","Módulos · Rua C","Módulos · Rua D","Conjuntos Elétricos","Conjuntos Mecânicos"],"o":[[0,"74334",1,1,"Murilo","5",0],[0,"74307",1,1,"Murilo","5",0],[0,"74314",1,1,"Murilo","4",0],[0,"74344",1,1,"Murilo","4",0],[0,"74324",1,1,"Murilo","5",0],[0,"74335",1,1,"Murilo","4",0],[0,"74347",1,1,"Murilo","4",0],[0,"74315",1,1,"Murilo","4",0],[0,"74348",1,1,"Murilo","7",0],[0,"74325",1,1,"Murilo","6",0],[0,"74366",1,1,"Murilo","7",0],[0,"74309",1,1,"Murilo","7",0],[0,"74356",1,1,"Murilo","6",0],[0,"74362",1,1,"Murilo","7",0],[0,"74367",1,1,"Murilo","8",0],[0,"74357",1,1,"Murilo","8",0],[0,"74358",1,1,"Murilo","8",0],[0,"74363",1,1,"Murilo","9",0],[0,"74336",1,1,"Murilo","9",0],[0,"74308",1,1,"Murilo","9",0],[0,"74316",1,1,"Murilo","9",0],[0,"74349",1,1,"","12",0],[0,"74326",1,0,"","",0],[0,"74337",1,0,"","",0],[0,"74317",1,1,"Murilo","9",0],[0,"74327",1,0,"","",0],[0,"74368",1,0,"","",0],[0,"74310",1,0,"","",0],[0,"74359",1,0,"","",0],[0,"74364",1,0,"","",0],[0,"74369",1,0,"","",0],[0,"74360",1,0,"","",0],[0,"74361",1,0,"","",0],[0,"74365",1,0,"","",0],[1,"74430",1,0,"","",0],[1,"74434",1,0,"","",0],[1,"74431",1,0,"","",0],[1,"74435",1,0,"","",0],[2,"74432",1,0,"","",0],[2,"74436",1,0,"","",0],[2,"74433",1,0,"","",0],[2,"74437",1,0,"","",0],[3,"74338",1,0,"","",0],[3,"74353",1,0,"","",0],[3,"74318",1,1,"Murilo","11",0],[3,"74345",1,0,"","",0],[3,"74328",1,0,"","",0],[3,"74339",1,0,"","",0],[3,"74311",1,0,"","",0],[3,"74319",1,1,"Murilo","11",0],[3,"74354",1,0,"","",0],[3,"74329",1,0,"","",0],[3,"74340",1,0,"","",0],[3,"74312",1,0,"","",0],[3,"74320",1,1,"Murilo","11",0],[3,"74350",1,0,"","",0],[3,"74330",1,0,"","",0],[3,"74341",1,0,"","",0],[3,"74313",1,0,"","",0],[3,"74321",1,1,"Murilo","11",0],[3,"74351",1,0,"","",0],[3,"74331",1,0,"","",0],[3,"74342",1,0,"","",0],[3,"74355",1,0,"","",0],[3,"74322",1,1,"Murilo","11",0],[3,"74264",1,1,"Murilo","5",1],[3,"74332",1,0,"","",0],[3,"74343",1,0,"","",0],[3,"74352",1,0,"","",0],[3,"74323",1,1,"Murilo","11",0],[3,"74346",1,0,"","",0],[3,"74333",1,0,"","",0],[5,"74134",24,1,"Murilo","4",0],[5,"74273",150,1,"Murilo","4",0],[5,"74305",38,1,"Murilo","4",0],[5,"74306",76,1,"Murilo","4",0],[5,"74144",1,0,"","",1],[5,"74145",1,3,"","",0],[5,"74380",1,0,"","",0],[5,"74382",200,0,"","",0],[5,"74383",76,0,"","",0],[5,"",1,3,"","",0],[5,"74446",1,0,"","",0],[5,"74449",1,0,"","",0],[5,"74462",1,0,"","",0],[5,"74464",1,0,"","",0],[5,"74477",1,0,"","",0],[5,"74483",1,0,"","",0],[5,"74488",1,0,"","",0],[5,"74489",1,0,"","",0],[5,"74490",1,0,"","",0],[5,"74429",1,0,"","",0],[5,"74485",1,0,"","",0],[4,"74285",10,3,"","",0],[4,"74401",1,0,"","",0],[4,"74402",1,0,"","",0],[4,"74403",1,0,"","",0],[4,"74404",1,1,"Carlos","18",0],[4,"74405",1,1,"","",0],[4,"74406",1,0,"","",0],[4,"74410",1,0,"","",0],[4,"74412",1,0,"","",0],[4,"74413",1,0,"","",0],[4,"74414",1,0,"","",0],[4,"74426",1,0,"","",0],[4,"74427",1,0,"","",0],[4,"74399",1,0,"","",0],[4,"74400",1,0,"","",0],[4,"74395",1,1,"Carlos","18",0],[4,"74396",1,2,"","",0],[4,"74397",1,0,"","",0],[4,"74398",1,0,"","",0]],"a":[["r","Pedido bloqueado (RGO)","OP 74145","CONJ. MONTAGEM MECANICA - TRANSPORTADORES (P47"],["r","Pedido bloqueado (RGO)","Sem OP","CONJ. ARRUELA PLASTICA DE FIXACAO COM REBAIXO"],["r","Pedido bloqueado (RGO)","OP 74285","CONJ. FIXACAO INVERSOR"],["r","OP atrasada (Cockpit)","OP 74264","Prazo vencido · Módulos · Rua D"],["r","OP atrasada (Cockpit)","OP 74144","Prazo vencido · Conjuntos Mecânicos"],["r","Estoque insuficiente","40421000004212","ESTEIRA MODULAR TOPO EMBORRACHADO · estoque 0 / precisa 15,24"],["r","Estoque insuficiente","40421000004543","ESTEIRA TAPETE MODULAR FLAT TOP (S · estoque 0 / precisa 18,29"],["r","Estoque insuficiente","40421000008624","RODA DENTADA DE ACIONAMENTO BIPART · estoque 0 / precisa 72"],["y","SYNECO pendente","OP 74404","Separado sem registro no SYNECO"],["y","Pallet não informado","OP 74405","Material usado sobra P3960/P4362 (Fisico no 02)"],["y","Estoque insuficiente","40421000000766","ESTEIRA DE INOX CURVA SSF881M K325 · estoque 114,876 / precisa 213,36"],["y","Estoque insuficiente","40421000001770","ESTEIRA TAPETE MODULAR FLAT TOP (S · estoque 2,2 / precisa 9,14"],["y","Estoque insuficiente","40421000005147","MANCAL QUADRADO PLASTICO SUCF 208 · estoque 1 / precisa 14"],["y","Estoque insuficiente","40421000002157","PARAF, CAB, SEXT, INOX A2 M10-1,5 · estoque 934 / precisa 1158"],["y","Estoque insuficiente","40421000004505","ROLAMENTO RIGIDO DE ESFERA D,68MM · estoque 8 / precisa 24"],["b","Observação","OP 74307","Travessa e Eixo de Retorno são para as primeiras ordens de produção que já "]]};
+const BASE="15/10 07:22",NM=["Concluído","Em Separação","Divergência","Pendente"];
+const ST=[{n:"Pendente",c:"var(--n)"},{n:"Concluído",c:"var(--g)"},{n:"Em Separação",c:"var(--y)"},{n:"Divergência",c:"var(--r)"}]; // 0 P,1 C,2 E,3 D
+const $=i=>document.getElementById(i),f=n=>n.toLocaleString("pt-BR"),p2=n=>String(n).padStart(2,"0");
+function shift(d){const h=d.getHours();return h>=6&&h<14?[1,6]:h>=14&&h<22?[2,14]:[3,22]}
+function render(){
+ const O=DATA.o,tot=O.reduce((a,o)=>a+o[2],0),by=[0,0,0,0],cnt=[0,0,0,0];
+ O.forEach(o=>{by[o[3]]+=o[2];cnt[o[3]]++});
+ const pct=Math.round(by[1]/tot*100);
+ $("k1").innerHTML=cnt[1]+' <small>/ '+O.length+'</small>';
+ $("k1s").textContent=cnt[2]+" em separação · "+cnt[3]+" divergência(s) · "+cnt[0]+" pendentes";
+ $("k2").innerHTML=f(by[1])+' <small>/ '+f(tot)+'</small>';
+ $("k2b").innerHTML=[1,2,3].map(i=>`<i style="width:${by[i]/tot*100}%;background:${ST[i].c}"></i>`).join("");
+ const now=new Date(),[sn,sh]=shift(now);let el=(now.getHours()+now.getMinutes()/60-sh+24)%24;el=Math.max(el,1);
+ const rate=Math.round(by[1]/el);
+ $("k3").innerHTML=f(rate)+' <small>itens/h</small>';
+ const pend=tot-by[1];$("k3s").textContent="Restam "+f(pend)+" itens · ~"+(rate?(pend/rate).toFixed(0):"—")+" h neste ritmo";
+ $("pc").textContent=pct+"%";
+ let off=0;const R=48,C=2*Math.PI*R;
+ $("dn").innerHTML=`<circle cx="60" cy="60" r="${R}" fill="none" stroke="var(--ln)" stroke-width="16"/>`+[1,2,3].map(i=>{const l=by[i]/tot*C,s=`<circle cx="60" cy="60" r="${R}" fill="none" stroke="${ST[i].c}" stroke-width="16" stroke-dasharray="${l} ${C-l}" stroke-dashoffset="${-off}"/>`;off+=l;return s}).join("");
+ $("lg").innerHTML=[1,2,3,0].map(i=>`<span style="--c:${ST[i].c}">${ST[i].n}: ${f(by[i])}</span>`).join("");
+ const Z=DATA.z.map((z,zi)=>{const r=O.filter(o=>o[0]==zi),q=r.reduce((a,o)=>a+o[2],0),s=r.filter(o=>o[3]==1).reduce((a,o)=>a+o[2],0),w={};
+  r.filter(o=>o[3]==1&&o[4]).forEach(o=>w[o[4]]=(w[o[4]]||0)+1);
+  const op=Object.keys(w).sort((a,b)=>w[b]-w[a]).join(" / ")||"Não atribuído";
+  const st=r.some(o=>o[3]==3)?3:s==q?1:(r.some(o=>o[3]==1||o[3]==2)?2:0);
+  return{z,op,q,s,p:Math.round(s/q*100),st}});
+ $("tb").innerHTML=Z.map(x=>`<tr><td>${x.z}</td><td>${x.op}</td><td>${f(x.q)}</td><td>${f(x.s)}</td><td><div class="pb"><div class="bar"><i style="width:${x.p}%;background:${ST[x.st==0?0:x.st==3?3:x.p==100?1:2].c}"></i></div>${x.p}%</div></td><td><span class="st" style="background:${ST[x.st].c};${x.st==2?"color:#1a1200":""}">${ST[x.st].n}</span></td></tr>`).join("");
+ const AL=DATA.a,col={r:"var(--r)",y:"var(--y)",b:"var(--b)"};
+ $("na").textContent=AL.length;
+ $("al").innerHTML=AL.map(a=>`<div class="a" style="--c:${col[a[0]]}"><b>${a[1]} · ${a[2]}</b><span>${a[3]}</span></div>`).join("");
+}
+let t0=Date.now();
+function tick(){const d=new Date();$("clk").textContent=p2(d.getHours())+":"+p2(d.getMinutes())+":"+p2(d.getSeconds());
+ $("turno").textContent="Turno "+shift(d)[0]+" · "+p2(shift(d)[1])+":00–"+p2((shift(d)[1]+8)%24)+":00";
+ if(!$("sync").classList.contains("sync"))$("syt").textContent="Atualizado "+(Date.now()-t0<5000?"agora":"há "+Math.floor((Date.now()-t0)/1000)+"s")+" · base "+BASE}
+function sync(){$("sync").classList.add("sync");$("syt").textContent="Syncing...";setTimeout(()=>{render();t0=Date.now();$("sync").classList.remove("sync");tick()},800)}
+$("th").onclick=()=>{const e=document.documentElement;e.dataset.theme=e.dataset.theme=="dark"?"light":"dark"};
+document.documentElement.dataset.theme="dark";
+render();tick();setInterval(tick,1000);setInterval(sync,30000);
+</script>
+</body>
+</html>
